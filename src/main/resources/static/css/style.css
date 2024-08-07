@@ -1,0 +1,43 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+
+.gameWindow{
+    border: 1px solid;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    height: 500px;
+}
+
+.messagePanel{
+    border: 1px solid green;
+    height: 100%;
+    width:20%;
+    position: absolute;
+    right:0;
+    z-index: 10;
+}
+
+.messagePanel>.messageInput{
+    position: absolute;
+    bottom: 0;
+    display: flex;
+    background: #00f;
+    width: 100%;
+}
+
+.messageInput>input[type="button"]{
+    max-width: 20px;
+}
+.messageInput>input[type="text"]{
+    width: 100%;
+}
+
+canvas{
+    min-width: 500px;
+    border: 2px solid green;
+    width: 60%;
+    height:100%;
+}

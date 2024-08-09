@@ -6,29 +6,54 @@ window.onload = function () {
   const userNameForm = document.getElementById("usernameForm");
   const messageForm = document.getElementById("messageForm");
   const chatLog = document.getElementById("chatLog");
+  const playersList = document.getElementById("playersList");
+  const roomIdElemnt = document.getElementById("roomIdDisplay");
+  const clearCanvasButton = document.getElementById("clear");
 
   userNameForm.addEventListener("submit", connect, true);
   messageForm.addEventListener("submit", sendMessage, true);
 
   let stompClient = null;
   let username = null;
+  let roomId = null;
+  let drawing = false;
+
+  canvas.width = canvas.offsetWidth;
+  canvas.height = canvas.offsetHeight;
 
   function connect(event) {
     event.preventDefault();
     username = document.getElementById("name").value.trim();
-    if (username) {
+    roomId = document.getElementById("roomId").value.trim();
+    if (username && roomId) {
       var socket = new SockJS("/ws");
       stompClient = Stomp.over(socket);
       stompClient.connect({}, onConnect, onError);
     }
   }
 
-  function onConnect() {
-    stompClient.subscribe("/topic/public", onMessageReceived);
-    stompClient.subscribe("/topic/drawingBoard", onPositionReceived);
+  async function onConnect() {
+    stompClient.subscribe(`/topic/public/${roomId}`, onMessageReceived);
+    stompClient.subscribe(`/topic/drawingBoard/${roomId}`, onPositionReceived);
+
+    roomIdElemnt.appendChild(document.createTextNode(roomId))
+
+    await fetch(`/room/${roomId}`)
+      .then((response) => response.json())
+      .then((data) => {
+        data.forEach((player) => {
+          const playerElement = document.createElement("li");
+          playerElement.textContent = player;
+          playersList.appendChild(playerElement);
+        });
+      });
+
+    // const playerElement = document.createElement("li");
+    // playerElement.textContent = username + "  you";
+    // playersList.appendChild(playerElement);
 
     stompClient.send(
-      "/app/chat.addUser",
+      `/app/chat.addUser/${roomId}`,
       {},
       JSON.stringify({ sender: username, type: "JOIN" })
     );
@@ -40,12 +65,16 @@ window.onload = function () {
 
   function onMessageReceived(payload) {
     const message = JSON.parse(payload.body);
-    console.log(message);
-
     const messageElement = document.createElement("li");
 
     if (message.type === "JOIN") {
-      messageElement.textContent = message.sender + "joined";
+      document.getElementById("joinRoom").classList.add("hidden");
+      document.querySelector(".gameWindow").classList.remove("hidden");
+      messageElement.textContent = message.sender + " has joined";
+      const playerElement = document.createElement("li");
+      playerElement.textContent = message.sender;
+      if (message.sender === username) playerElement.textContent += "  <<you"
+      playersList.appendChild(playerElement);
     } else if (message.type === "LEAVE") {
       messageElement.textContent = message.sender + "has left!";
     } else if (message.type === "CHAT") {
@@ -61,7 +90,6 @@ window.onload = function () {
     if (position.type === "START_POINT") {
       context.beginPath();
       context.moveTo(position.x, position.y);
-      
     } else if (position.type === "PATH_POINT") {
       context.lineTo(position.x, position.y);
       context.stroke();
@@ -81,7 +109,7 @@ window.onload = function () {
       };
 
       stompClient.send(
-        "/app/chat.sendMessage",
+        `/app/chat.sendMessage/${roomId}`,
         {},
         JSON.stringify(chatMessage)
       );
@@ -89,17 +117,11 @@ window.onload = function () {
     }
   }
 
-  let drawing = false;
-
-  canvas.width = canvas.offsetWidth;
-  canvas.height = canvas.offsetHeight;
-
   canvas.addEventListener("mousedown", function (e) {
     drawing = true;
-    // context.beginPath();
-    // context.moveTo(e.offsetX, e.offsetY);
+
     stompClient.send(
-      "/app/draw.startPath",
+      `/app/draw.startPath/${roomId}`,
       {},
       JSON.stringify({
         x: Math.floor(e.offsetX),
@@ -114,7 +136,7 @@ window.onload = function () {
   canvas.addEventListener("mousemove", function (e) {
     if (drawing) {
       stompClient.send(
-        "/app/draw.pathPoint",
+        `/app/draw.pathPoint/${roomId}`,
         {},
         JSON.stringify({
           x: Math.floor(e.offsetX),

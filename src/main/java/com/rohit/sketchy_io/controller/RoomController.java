@@ -1,5 +1,6 @@
 package com.rohit.sketchy_io.controller;
 
+import java.util.Queue;
 import java.util.Set;
 
 import org.springframework.http.HttpStatus;
@@ -26,8 +27,8 @@ public class RoomController {
     }
 
     @GetMapping("/{roomId}")
-    public ResponseEntity<Set<String>> getPlayersOfRoom(@PathVariable String roomId) {
-        Set<String> players = roomService.getPlayersOfRoom(roomId);
+    public ResponseEntity<Queue<String>> getPlayersOfRoom(@PathVariable String roomId) {
+        Queue<String> players = roomService.getPlayersOfRoom(roomId);
         return ResponseEntity.ok(players);
     }
 

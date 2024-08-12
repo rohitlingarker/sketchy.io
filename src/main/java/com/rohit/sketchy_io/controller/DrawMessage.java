@@ -5,14 +5,18 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Position {
+@ToString
+public class DrawMessage {
     private int x;
     private int y;
-    private PositionType type;
+    private DrawMessageType type;
+    private String color;
+    private int lineWidth;
 }

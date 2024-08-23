@@ -23,6 +23,9 @@ public class ChatController {
     public ChatMessage sendMessage(
             @DestinationVariable String roomId,
             @Payload ChatMessage chatMessage) {
+        if (roomService.checkGuess(roomId, chatMessage)) {
+            chatMessage.setType(MessageType.CORRECT_GUESS);
+        }
         return chatMessage;
     }
 

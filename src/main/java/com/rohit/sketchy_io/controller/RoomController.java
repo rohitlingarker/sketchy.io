@@ -1,5 +1,6 @@
 package com.rohit.sketchy_io.controller;
 
+import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 
@@ -27,8 +28,8 @@ public class RoomController {
     }
 
     @GetMapping("/{roomId}")
-    public ResponseEntity<Queue<String>> getPlayersOfRoom(@PathVariable String roomId) {
-        Queue<String> players = roomService.getPlayersOfRoom(roomId);
+    public ResponseEntity<List<Player>> getPlayersOfRoom(@PathVariable String roomId) {
+        List<Player> players = roomService.getPlayersOfRoom(roomId);
         return ResponseEntity.ok(players);
     }
 

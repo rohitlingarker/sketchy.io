@@ -11,10 +11,18 @@ window.onload = function () {
   const clearCanvasButton = document.getElementById("clear");
   const colorPicker = document.getElementById("colorPicker");
   const lineWidth = document.getElementById("lineWidth");
-  
+
+  const nextTurnBtn = document.getElementById("nextTurnBtn");
+
+  const isDrawingElement = document.createElement("span")
+  isDrawingElement.textContent = " is Drawing"
 
   userNameForm.addEventListener("submit", connect, true);
   messageForm.addEventListener("submit", sendMessage, true);
+
+  nextTurnBtn.addEventListener("click", endTurn, true);
+
+
 
   clearCanvasButton.onclick = clearDrawingBoard;
   colorPicker.onchange = changeStrokeColor;
@@ -23,23 +31,43 @@ window.onload = function () {
   let stompClient = null;
   let username = null;
   let roomId = null;
+  let playerList = {};
   let drawing = false;
-
-  canvas.width = canvas.offsetWidth;
-  canvas.height = canvas.offsetHeight;
-  document.querySelector(".gameWindow").classList.add("hidden");
-
-
-  // console.log("seting width,height to:", canvas.width, canvas.height);
-
+  // const canvasAspectRatio = 1 / 5;
+  let isDrawing = false;
   context.lineWidth = 2;
 
+  function initCanvas() {
+    console.log("//init");
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+    // context.fillRect(0,0,canvas.width,canvas.height);
+
+    document.querySelector(".gameWindow").classList.add("hidden");
+  }
+
+  function resizeCanvas() {
+    let imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+    context.save();
+
+    context.putImageData(imageData, 0, 0);
+  }
+
+  initCanvas();
+
+  // canvas.onresize = initCanvas;
+
+  // console.log("seting width,height to:", canvas.width, canvas.height);
 
   function connect(event) {
     event.preventDefault();
     username = document.getElementById("name").value.trim();
     roomId = document.getElementById("roomId").value.trim();
-    console.log(username, roomId, "/////");
+    let joinBtn = document.getElementById("joinBtn");
+    joinBtn.textContent = "Joining...";
 
     if (username && roomId) {
       var socket = new SockJS("/ws");
@@ -62,10 +90,12 @@ window.onload = function () {
       .then((data) => {
         data.forEach((player) => {
           const playerElement = document.createElement("li");
-          playerElement.textContent = player;
+          playerElement.textContent = player.username;
           playersList.appendChild(playerElement);
+          playerList[player.username] = playerElement;
         });
       });
+    console.log(playerList);
 
     // const playerElement = document.createElement("li");
     // playerElement.textContent = username + "  you";
@@ -95,6 +125,7 @@ window.onload = function () {
       playerElement.textContent = message.sender;
       if (message.sender === username) playerElement.textContent += "  (you)";
       playersList.appendChild(playerElement);
+      playerList[message.sender] = playerElement;
     } else if (message.type === "LEAVE") {
       messageElement.textContent = message.sender + "has left!";
     } else if (message.type === "CHAT") {
@@ -117,8 +148,18 @@ window.onload = function () {
       context.clearRect(0, 0, canvas.width, canvas.height);
     } else if (drawMessage.type === "COLOR") {
       context.strokeStyle = drawMessage.color;
-    } else if (drawMessage.type === "LINE_WIDTH"){
+    } else if (drawMessage.type === "LINE_WIDTH") {
       context.lineWidth = drawMessage.lineWidth;
+    } else if (drawMessage.type === "END_TURN") {
+      if (drawMessage.player.username === username) {
+        console.log(username);
+        
+        isDrawing = true;
+        console.log("//playerslist",playerList);
+      }
+      let drawingPlayer = playerList[drawMessage.player.username];
+
+      drawingPlayer.appendChild(isDrawingElement);
     }
   }
 
@@ -160,7 +201,7 @@ window.onload = function () {
     drawing = false;
   });
   canvas.addEventListener("mousemove", function (e) {
-    if (drawing) {
+    if (drawing & isDrawing) {
       stompClient.send(
         `/app/draw.pathPoint/${roomId}`,
         {},
@@ -199,6 +240,26 @@ window.onload = function () {
       JSON.stringify({
         lineWidth: e.target.value,
         type: "LINE_WIDTH",
+      })
+    );
+  }
+
+  function endTurn() {
+    console.log("ending turn and getting next turn");
+    try {
+      playerList[username].removeChild(isDrawingElement);
+      isDrawing = false;
+      clearDrawingBoard();
+    } catch (error) {
+      console.log(error);
+      
+    }
+
+    stompClient.send(
+      `/app/draw.endTurn/${roomId}`,
+      {},
+      JSON.stringify({
+        type: "END_TURN",
       })
     );
   }

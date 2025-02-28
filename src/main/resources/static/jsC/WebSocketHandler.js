@@ -4,6 +4,7 @@ export default class WebSocketHandler {
         this.roomId = roomId;
         this.username = username;
         this.turn = false;
+        this.word = null;
     }
 
     connect(onConnectCallback, onErrorCallback) {

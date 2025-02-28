@@ -31,9 +31,10 @@ function provideChoices(words, webSocketHandler) {
   }
 }
 
-function showDashedWord(length) {
+function showDashedWord(word) {
   const wordElement = document.getElementById("word");
-  wordElement.textContent = "-".repeat(length);
+  wordElement.textContent = word.replace(/\S/g,"_")
+  
 }
 
 function showWord(word) {

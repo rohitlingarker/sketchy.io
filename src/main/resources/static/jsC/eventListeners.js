@@ -17,25 +17,24 @@ function setupEventListeners(canvasHandler, webSocketHandler, roomId) {
   document
     .getElementById("colorPicker")
     .addEventListener("change", (e) =>
-      changeStrokeColor(e, webSocketHandler, roomId)
+      changeStrokeColor(e, canvasHandler, webSocketHandler, roomId)
     );
   document
     .getElementById("lineWidth")
     .addEventListener("change", (e) =>
-      changeLineWidth(e, webSocketHandler, roomId)
+      changeLineWidth(e, canvasHandler, webSocketHandler, roomId)
     );
 
-  document
-    .getElementById("messageForm")
-    .addEventListener("submit", (e) =>
-      sendMessage(e, webSocketHandler, roomId)
-    );
+  document.getElementById("messageForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    sendMessage(e.target[0].value, webSocketHandler, roomId);
+    e.target[0].value = "";
+  });
 
-  document
-    .getElementById("nextTurnBtn")
-    .addEventListener("click", () =>
-      endTurn(canvasHandler, webSocketHandler, roomId)
-    );
+  document.getElementById("startGameBtn").addEventListener("click", () => {
+    document.getElementById("startGameBtn").classList.add("hidden");
+    endTurn(canvasHandler, webSocketHandler, roomId);
+  });
 }
 
 function onMouseDown(e, canvasHandler, webSocketHandler, roomId) {
@@ -74,7 +73,7 @@ function clearCanvas(canvasHandler, webSocketHandler, roomId) {
   }
 }
 
-function changeStrokeColor(e, webSocketHandler, roomId) {
+function changeStrokeColor(e, canvasHandler, webSocketHandler, roomId) {
   if (webSocketHandler.turn) {
     canvasHandler.changeColor(e.target.value);
     webSocketHandler.sendMessage(`/app/draw.color/${roomId}`, {
@@ -84,7 +83,7 @@ function changeStrokeColor(e, webSocketHandler, roomId) {
   }
 }
 
-function changeLineWidth(e, webSocketHandler, roomId) {
+function changeLineWidth(e, canvasHandler, webSocketHandler, roomId) {
   if (webSocketHandler.turn) {
     canvasHandler.changeLineWidth(e.target.value);
     webSocketHandler.sendMessage(`/app/draw.lineWidth/${roomId}`, {
@@ -96,6 +95,13 @@ function changeLineWidth(e, webSocketHandler, roomId) {
 
 function endTurn(canvasHandler, webSocketHandler, roomId) {
   console.log("Ending turn and getting next turn");
+  if (webSocketHandler.word) {
+    sendMessage(
+      "The word was : " + webSocketHandler.word,
+      webSocketHandler,
+      roomId
+    );
+  }
   canvasHandler.isDrawing = false;
   clearCanvas(canvasHandler, webSocketHandler, roomId);
   webSocketHandler.turn = false;
@@ -104,14 +110,12 @@ function endTurn(canvasHandler, webSocketHandler, roomId) {
   });
 }
 
-function sendMessage(e, webSocketHandler, roomId) {
-  e.preventDefault();
+function sendMessage(msg, webSocketHandler, roomId) {
   webSocketHandler.sendMessage(`/app/chat.sendMessage/${roomId}`, {
     sender: webSocketHandler.username,
-    content: e.target[0].value,
+    content: msg,
     type: "CHAT",
   });
-  e.target[0].value = "";
 }
 
 export { endTurn, setupEventListeners };

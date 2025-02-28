@@ -18,7 +18,7 @@ public class RoomData {
     private int currentPlayer;
     private int currentRound;
     private List<Player> playerList;
-    private String wordToGuess = "hello";
+    private String wordToGuess ;
 
     @Autowired
     private WordService wordService;

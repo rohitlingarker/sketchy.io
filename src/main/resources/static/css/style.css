@@ -166,5 +166,6 @@ canvas{
     display: flex;
     justify-content: center;
     place-items: center;
+    letter-spacing: 4px;
 
 }

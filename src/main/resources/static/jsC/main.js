@@ -7,7 +7,7 @@ import {
   showDashedWord,
   showWord,
   checkIfAllGuessedWord,
-} from "./drawUitls.js";
+} from "./drawUtils.js";
 
 window.onload = function () {
   const canvas = document.getElementById("canvas1");
@@ -125,9 +125,7 @@ window.onload = function () {
         break;
 
       case "CLEAR":
-        if (!webSocketHandler.turn) {
-          canvasHandler.clearCanvas();
-        }
+        canvasHandler.clearCanvas();
         break;
 
       case "COLOR":
@@ -150,6 +148,10 @@ window.onload = function () {
           });
           playerList[username].hasGuessed = true;
           provideChoices(drawMessage.words, webSocketHandler);
+        }else{
+          const choosingMsg = document.createElement("li");
+          choosingMsg.textContent = `${drawMessage.player.username} is choosing the word`;
+          chatLog.appendChild(choosingMsg);
         }
         if (isDrawingElement.parentElement) {
           isDrawingElement.parentElement.removeChild(isDrawingElement);
@@ -171,7 +173,11 @@ window.onload = function () {
         if (webSocketHandler.turn) {
           showWord(drawMessage.words[0]);
         } else {
-          showDashedWord(drawMessage.x);
+          showDashedWord(drawMessage.words[0]);
+          webSocketHandler.word = drawMessage.words[0];
+          const wordChoosenMsg = document.createElement("li");
+          wordChoosenMsg.textContent = `word choosen`;
+          chatLog.appendChild(wordChoosenMsg);
         }
         break;
 

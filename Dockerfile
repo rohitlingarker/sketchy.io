@@ -21,10 +21,10 @@ FROM openjdk:17-jdk-slim
 WORKDIR /app
 
 # Copy the JAR file from the previous stage
-COPY --from=build /app/target/*.jar /app/app.jar
+COPY --from=build /app/target/*.jar /app/different.jar
 
 # Expose the port the app runs on
 EXPOSE 8080
 
 # Run the application
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+ENTRYPOINT ["java", "-jar", "/app/different.jar"]

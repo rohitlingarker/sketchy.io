@@ -8,23 +8,49 @@
 </head>
 <body>
 
-    <div id="joinRoom">
+    <div id="joinRoom" class="">
         <form id="usernameForm" name="usernameForm">
-            <input type="text" id="name" placeholder="Username">
-            <button type="submit">Join</button>
+            <input type="text" autocomplete="off"  id="name" placeholder="Username">
+            <input type="text" autocomplete="off"  id="roomId" placeholder="Room Id">
+            <button type="submit" id="joinBtn">Join</button>
         </form>
     </div>
 
-    <div class="gameWindow">
-        <canvas id="canvas1"></canvas>
+    <div class="gameWindow ">
+        
+        <div class="messagePanel">
+            <ul id="playersList">
+
+            </ul>
+            <h4 >RoomId : <span id="roomIdDisplay"></span> </h4>
+
+        </div>
+
+        <div class="drawingBoard">
+            <div id="word"></div>
+            <div id="choices" class="hidden">
+                <div class="choice">Pac-man</div>
+                <div class="choice">top</div>
+                <div class="choice">fly</div>
+            </div>
+            <canvas id="canvas1" width="500" height="400"></canvas>
+            <div id="options">
+                <input type="number" name="lineWidth" id="lineWidth" max="10" min="1" value="2" title="Thickness">
+                <input type="color" name="colorPicker" id="colorPicker" title="Color">
+                <button id="clear" title="Clear all">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--!Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM175 175c9.4-9.4 24.6-9.4 33.9 0l47 47 47-47c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9l-47 47 47 47c9.4 9.4 9.4 24.6 0 33.9s-24.6 9.4-33.9 0l-47-47-47 47c-9.4 9.4-24.6 9.4-33.9 0s-9.4-24.6 0-33.9l47-47-47-47c-9.4-9.4-9.4-24.6 0-33.9z"/></svg>
+                </button>
+                <div id="startGameBtn" style="cursor: pointer;">Start Game</div>
+            </div>
+        </div>
         <div class="messagePanel">
             <ul id="chatLog">
-
+                
             </ul>
             <form id="messageForm" name = "messageForm" >
                 <div class="messageInput">
-                    <input type="text" id="message">
-                    <button type="submit" >Send</button>
+                    <input type="text" autocomplete="off" id="message" placeholder="Type your gues here">
+                    <button class="hidden" type="submit" >Send</button>
                 </div>
             </form>
         </div>
@@ -33,6 +59,6 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js" integrity="sha512-1QvjE7BtotQjkq8PxLeF6P46gEpBRXuskzIVgjFpekzFVF4yjRgrQvTG1MTOJ3yQgvTteKAcO7DSZI92+u/yZw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js" integrity="sha512-iKDtgDyTHjAitUDdLljGhenhPwrbBfqTKWO1mkhSFH3A7blITC9MhYon6SjnMhp4o0rADGw9yAC6EW4t5a4K3g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="js/main.js"></script>
+    <script type="module" src="jsC/main.js"></script>
 </body>
 </html>
